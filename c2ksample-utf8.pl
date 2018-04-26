@@ -25,7 +25,9 @@
 
 use strict;
 use PerlIO::encoding;
-use lib '.';
+use File::Spec;
+use File::Basename;
+use lib dirname(File::Spec->rel2abs(__FILE__));
 use conv2kr;
 
 binmode STDIN, ":encoding(utf8)";
@@ -47,30 +49,6 @@ while (my $line = <STDIN> ) {
 	my $str_r = conv2kr::johab2Mct($str_j);
 	say $str_r;
 }
-
-# Input string in EUC-KR, which is the most common Korean character
-# set encoding.
-
-#my $str_i = '맑은 하늘 아래 떠있는 독도';
-#print("EUC-KR Input\t: $str_i\n");
-
-# Convert the EUC-KR string to Johab first.
-#my $str_j = conv2kr::euckr2Johab($str_i);
-#print("Johab Input\t: $str_j\n");
-
-# Convert the Johab input string to "MCT".
-# This is where the actual rules are applied.
-#my $str_r = conv2kr::johab2Mct($str_j);
-#print("MCT result\t: $str_r\n");
-
-# Convert the "MCT" result string back to Johab.
-#my ($str_n, $str_n2) = conv2kr::mct2Johab($str_r, 1);
-#print("Johab result\t: $str_n\n");
-#print("Johab result2\t: $str_n2\n");
-
-# Convert the Johab result string to HTML Unicode.
-#my $str_h = conv2kr::johab2Html($str_n);
-#print("HTML result\t: $str_h\n");
 
 ######################################################################
 # End.
