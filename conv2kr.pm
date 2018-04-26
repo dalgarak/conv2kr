@@ -31,12 +31,14 @@
 
 package conv2kr;
 use strict;
+use Encode qw(encode decode);
 
 ######################################################################
 ########## EXPORTED NAMES
 ######################################################################
 
 our @EXPORT = qw(configure
+                 utf82Johab
                  euckr2Johab
                  johab2Mct
                  mct2Johab
@@ -55,7 +57,7 @@ our @EXPORT = qw(configure
 # Environments.
 
 # Set up using "configure".
-my $ICONV = "/usr/local/bin/iconv";
+my $ICONV = "/usr/bin/iconv";
 my $TMP_FILE = "/tmp/temp.r2k." . $$;
 
 # Don't change.
@@ -176,6 +178,35 @@ sub configure
     my ($iconv_path, $tmp_prefix) = @_;
     $ICONV = $iconv_path;
     $TMP_FILE = $tmp_prefix . $$;
+}
+
+######################################################################
+# UTF-8 to Johab.
+# - $str: UTF-8 string.
+# + Johab string.
+sub utf82Johab
+{
+    my ($str) = @_;
+    my $iconv_opt = "$ICONV_OPT -f UTF-8 -t JOHAB";
+
+    # Create a temporary file.
+    open(FD_TMP, ">$TMP_FILE") or die("Cannot create a temporary file");
+    print(FD_TMP encode('UTF-8', $str));
+    close(FD_TMP);
+
+    # Use iconv to convert the text.
+    open(FD_CMD, "$ICONV $iconv_opt $TMP_FILE|")
+        or die("Cannot execute $ICONV");
+    $str = '';
+    while (my $line = <FD_CMD>) {
+        $str .= $line;
+    }
+    close(FD_CMD);
+
+    # Remove the temporary file.
+    `rm -f $TMP_FILE`;
+
+    return ($str);
 }
 
 ######################################################################
@@ -1065,7 +1096,8 @@ sub applyPRule2D
     my $jsN = getJSetAtIdx($jl, $i + 1);
 
     if ($m) {
-        my $c = $$jl[$i + 1]->[1];
+        #my $c = $$jl[$i + 1]->[1];
+        my $c = ($#$jl < $i +1)? ($$jl[$i + 1]->[1]) : 'x' ;
         if ($c eq '-') {
             $jsN = getJSetAtIdx($jl, $i + 2);
         } else {
@@ -1115,7 +1147,8 @@ sub applyPRule2L
     my $jsN = getJSetAtIdx($jl, $i + 1);
 
     if ($m) {
-        my $c = $$jl[$i + 1]->[1];
+        #my $c = $$jl[$i + 1]->[1];
+        my $c = ($#$jl < $i +1)? ($$jl[$i + 1]->[1]) : 'x' ;
         if ($c eq '-') {
             $jsN = getJSetAtIdx($jl, $i + 2);
         } else {
@@ -1371,7 +1404,8 @@ sub applyPRule2M
     my $jsN = getJSetAtIdx($jl, $i + 1);
 
     if ($m) {
-        my $c = $$jl[$i + 1]->[1];
+        #my $c = $$jl[$i + 1]->[1];
+        my $c = ($#$jl < $i +1)? ($$jl[$i + 1]->[1]) : 'x' ;
         if ($c eq '-') {
             $jsN = getJSetAtIdx($jl, $i + 2);
         } else {
@@ -1401,7 +1435,8 @@ sub applyPRule2B
     my $jsN = getJSetAtIdx($jl, $i + 1);
 
     if ($m) {
-        my $c = $$jl[$i + 1]->[1];
+        my $c = ($#$jl < $i +1)? ($$jl[$i + 1]->[1]) : 'x';
+	$c = 'x' unless defined $c;
         if ($c eq '-') {
             $jsN = getJSetAtIdx($jl, $i + 2);
         } else {
@@ -1526,7 +1561,8 @@ sub applyPRule2NG
     my $jsN = getJSetAtIdx($jl, $i + 1);
 
     if ($m) {
-        my $c = $$jl[$i + 1]->[1];
+        #my $c = $$jl[$i + 1]->[1];
+        my $c = ($#$jl < $i +1)? ($$jl[$i + 1]->[1]) : 'x' ;
         if ($c eq '-') {
             $jsN = getJSetAtIdx($jl, $i + 2);
         } else {
@@ -2308,6 +2344,33 @@ sub johab2Euckr
 {
     my ($str) = @_;
     my $iconv_opt = "$ICONV_OPT -f JOHAB -t EUC-KR";
+
+    # Create a temporary file.
+    open(FD_TMP, ">$TMP_FILE") or die("Cannot create a temporary file");
+    print(FD_TMP $str);
+    close(FD_TMP);
+
+    # Use iconv to convert the text.
+    open(FD_CMD, "$ICONV $iconv_opt $TMP_FILE|")
+        or die("Cannot execute $ICONV");
+    $str = '';
+    while (my $line = <FD_CMD>) {
+        $str .= $line;
+    }
+    close(FD_CMD);
+
+    # Remove the temporary file.
+    `rm -f $TMP_FILE`;
+
+    return ($str);
+}
+
+######################################################################
+# Johab to UTF-8.
+sub johab2utf8
+{
+    my ($str) = @_;
+    my $iconv_opt = "$ICONV_OPT -f JOHAB -t UTF-8";
 
     # Create a temporary file.
     open(FD_TMP, ">$TMP_FILE") or die("Cannot create a temporary file");
