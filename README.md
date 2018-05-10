@@ -1,5 +1,5 @@
 # conv2kr
-Automatically exported from code.google.com/p/conv2kr
+forked from https://github.com/hongcho/conv2kr
 
 한국어의 로마자 변환 (RRK; Revised Romanization of Korean)을 수행하는 스크립트.
 
